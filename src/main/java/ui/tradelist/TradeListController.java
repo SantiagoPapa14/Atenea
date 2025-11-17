@@ -44,10 +44,9 @@ public class TradeListController implements HasView {
 
     private String Payoff(Trade t) {
         String s;
-        System.out.println(mtmCache.get(t));
         if (mtmCache.get(t) == null)
             s = "N/A";
-        if (mtmCache.get(t) > 0)
+        else if (mtmCache.get(t) > 0)
             s = "+" + stringTwoDecimals(mtmCache.get(t));
         else
             s = stringTwoDecimals(mtmCache.get(t));
@@ -59,7 +58,7 @@ public class TradeListController implements HasView {
         String s;
         if (mtmCache.get(t) == null)
             s = "N/A";
-        if (mtmCache.get(t) > 0)
+        else if (mtmCache.get(t) > 0)
             s = "+" + stringTwoDecimals(mtmCache.get(t) / t.calculateValue() * 100.0);
         else
             s = stringTwoDecimals(mtmCache.get(t) / t.calculateValue() * 100.0);

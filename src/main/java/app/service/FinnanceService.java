@@ -78,13 +78,9 @@ public class FinnanceService extends MarketService {
         String url = "https://finnhub.io/api/v1/quote?symbol=" + ticker + "&token=" + apiKey;
         JSONObject obj = makeApiCall(url);
 
-        if (obj == null) {
-            System.err.println("Failed to get price for " + ticker);
-            return null;
-        }
-
-        if (obj.has("c")) {
-            return obj.getDouble("c");
+        if (obj != null && obj.has("c")) {
+            if (obj.getDouble("c") > 0)
+                return obj.getDouble("c");
         }
 
         return null;

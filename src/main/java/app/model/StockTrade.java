@@ -56,8 +56,10 @@ public class StockTrade extends Trade {
     }
 
     @Override
-    public double calculateMTM(MarketService marketService) {
-        double marketPrice = marketService.getStockPrice(ticker);
+    public Double calculateMTM(MarketService marketService) {
+        Double marketPrice = marketService.getStockPrice(ticker);
+        if (marketPrice == null)
+            return null;
         return (marketPrice - price) * quantity;
     }
 }

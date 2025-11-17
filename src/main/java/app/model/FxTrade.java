@@ -80,8 +80,10 @@ public class FxTrade extends Trade implements SettlementApplicable {
 
     // --- MTM calculation ---
     @Override
-    public double calculateMTM(MarketService marketService) {
-        double marketRate = marketService.getFxRate(buyCurrency, sellCurrency);
+    public Double calculateMTM(MarketService marketService) {
+        Double marketRate = marketService.getFxRate(buyCurrency, sellCurrency);
+        if (marketRate == null)
+            return null;
         double currentSellAmount = buyAmount.doubleValue() * marketRate;
         return currentSellAmount - sellAmount.doubleValue();
     }

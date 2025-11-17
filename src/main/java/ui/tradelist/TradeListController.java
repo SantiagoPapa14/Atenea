@@ -38,6 +38,35 @@ public class TradeListController implements HasView {
         }
     }
 
+    private String stringTwoDecimals(Double d) {
+        return String.valueOf(Math.round(d * 100.0) / 100.0);
+    }
+
+    private String Payoff(Trade t) {
+        String s;
+        System.out.println(mtmCache.get(t));
+        if (mtmCache.get(t) == null)
+            s = "N/A";
+        if (mtmCache.get(t) > 0)
+            s = "+" + stringTwoDecimals(mtmCache.get(t));
+        else
+            s = stringTwoDecimals(mtmCache.get(t));
+
+        return "$" + s;
+    }
+
+    private String PayoffPercent(Trade t) {
+        String s;
+        if (mtmCache.get(t) == null)
+            s = "N/A";
+        if (mtmCache.get(t) > 0)
+            s = "+" + stringTwoDecimals(mtmCache.get(t) / t.calculateValue() * 100.0);
+        else
+            s = stringTwoDecimals(mtmCache.get(t) / t.calculateValue() * 100.0);
+
+        return s + "%";
+    }
+
     private void setupTable() {
         var table = view.getTable();
         computeMTMs();
@@ -61,21 +90,15 @@ public class TradeListController implements HasView {
         investmentCol
                 .setCellValueFactory(
                         cellData -> new ReadOnlyObjectWrapper<String>(
-                                "$" + String
-                                        .valueOf(Math.round(cellData.getValue().calculateValue() * 100.0) / 100.0)));
+                                "$" + stringTwoDecimals(cellData.getValue().calculateValue())));
 
         TableColumn<Trade, String> mtmCol = new TableColumn<>("Payoff ($)");
         mtmCol.setCellValueFactory(
-                cellData -> new ReadOnlyObjectWrapper<String>(
-                        "$" + String.valueOf(Math.round(mtmCache.get(cellData.getValue()) * 100.0) / 100.0)));
+                cellData -> new ReadOnlyObjectWrapper<String>(Payoff(cellData.getValue())));
 
         TableColumn<Trade, String> mtmPercentageCol = new TableColumn<>("Payoff (%)");
         mtmPercentageCol.setCellValueFactory(
-                cellData -> new ReadOnlyObjectWrapper<String>(
-                        String.valueOf(Math
-                                .round((mtmCache.get(cellData.getValue()) / cellData.getValue().calculateValue() * 100)
-                                        * 100.0)
-                                / 100.0) + "%"));
+                cellData -> new ReadOnlyObjectWrapper<String>(PayoffPercent(cellData.getValue())));
 
         table.getColumns().clear();
         table.getColumns().addAll(idCol, typeCol, descCol, cpCol, dateCol, investmentCol, mtmCol, mtmPercentageCol);

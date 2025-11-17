@@ -49,7 +49,7 @@ public abstract class Trade implements Priceable {
     public abstract String getDescription();
 
     @Override
-    public abstract double calculateMTM(MarketService marketService);
+    public abstract Double calculateMTM(MarketService marketService);
 
     @Override
     public String toString() {

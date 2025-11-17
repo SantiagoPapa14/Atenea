@@ -99,6 +99,7 @@ public class FinnanceService extends MarketService {
         if (obj != null && obj.has("price")) {
             return obj.getDouble("price");
         }
+
         return null;
     }
 

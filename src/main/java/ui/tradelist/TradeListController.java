@@ -20,7 +20,7 @@ public class TradeListController implements HasView {
     private final TradeListView view;
     private final TradeRepository repo;
     private final MarketService marketService;
-    private final Map<String, Double> priceCache = new HashMap<>();
+    private final Map<Trade, Double> mtmCache = new HashMap<>();
 
     public TradeListController(TradeRepository repo, MarketService marketService) {
         this.repo = repo;
@@ -31,21 +31,16 @@ public class TradeListController implements HasView {
         view.refreshPricesButton().setOnAction(_ -> setupTable());
     }
 
-    private void refreshPrices() {
-        for (Trade trade : repo.findAll()) {
-            if (trade.getProductType().equals("STOCK")) {
-                StockTrade stockTrade = (StockTrade) trade;
-                String ticker = stockTrade.getTicker();
-                Double price = marketService.getStockPrice(ticker);
-                priceCache.put(ticker, price);
-                System.out.println("PRICE OF " + ticker + ": " + price);
-            }
+    private void computeMTMs() {
+        mtmCache.clear();
+        for (Trade t : repo.findAll()) {
+            mtmCache.put(t, t.calculateMTM(marketService));
         }
     }
 
     private void setupTable() {
         var table = view.getTable();
-        refreshPrices();
+        computeMTMs();
 
         TableColumn<Trade, Long> idCol = new TableColumn<>("ID");
         idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -53,26 +48,37 @@ public class TradeListController implements HasView {
         TableColumn<Trade, String> typeCol = new TableColumn<>("Type");
         typeCol.setCellValueFactory(new PropertyValueFactory<>("productType"));
 
+        TableColumn<Trade, String> descCol = new TableColumn<>("Description");
+        descCol.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().getDescription()));
+
         TableColumn<Trade, String> cpCol = new TableColumn<>("Counterparty");
         cpCol.setCellValueFactory(new PropertyValueFactory<>("counterparty"));
 
         TableColumn<Trade, String> dateCol = new TableColumn<>("Date");
         dateCol.setCellValueFactory(new PropertyValueFactory<>("tradeDate"));
 
-        TableColumn<Trade, Double> mtmCol = new TableColumn<>("MTM");
-        mtmCol.setCellValueFactory(cellData -> {
-            Trade trade = cellData.getValue();
-            if (trade.getProductType().equals("STOCK")) {
-                StockTrade stockTrade = (StockTrade) trade;
-                Double price = priceCache.get(stockTrade.getTicker());
-                return new ReadOnlyObjectWrapper<>(cellData.getValue().calculateMTM(price));
-            } else {
-                return new ReadOnlyObjectWrapper<>(null);
-            }
-        });
+        TableColumn<Trade, String> investmentCol = new TableColumn<>("Investment");
+        investmentCol
+                .setCellValueFactory(
+                        cellData -> new ReadOnlyObjectWrapper<String>(
+                                "$" + String
+                                        .valueOf(Math.round(cellData.getValue().calculateValue() * 100.0) / 100.0)));
+
+        TableColumn<Trade, String> mtmCol = new TableColumn<>("Payoff ($)");
+        mtmCol.setCellValueFactory(
+                cellData -> new ReadOnlyObjectWrapper<String>(
+                        "$" + String.valueOf(Math.round(mtmCache.get(cellData.getValue()) * 100.0) / 100.0)));
+
+        TableColumn<Trade, String> mtmPercentageCol = new TableColumn<>("Payoff (%)");
+        mtmPercentageCol.setCellValueFactory(
+                cellData -> new ReadOnlyObjectWrapper<String>(
+                        String.valueOf(Math
+                                .round((mtmCache.get(cellData.getValue()) / cellData.getValue().calculateValue() * 100)
+                                        * 100.0)
+                                / 100.0) + "%"));
 
         table.getColumns().clear();
-        table.getColumns().addAll(idCol, typeCol, cpCol, dateCol, mtmCol);
+        table.getColumns().addAll(idCol, typeCol, descCol, cpCol, dateCol, investmentCol, mtmCol, mtmPercentageCol);
 
         table.getItems().clear();
         table.getItems().addAll(repo.findAll());

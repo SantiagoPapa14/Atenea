@@ -1,7 +1,7 @@
 package ui.forex;
 
-import app.model.Trade;
 import app.model.FxTrade;
+import app.model.FxProductType;
 import app.model.TradeRepository;
 import app.service.MarketService;
 
@@ -23,8 +23,8 @@ public class ForexEntryController implements HasView {
         this.marketService = marketService;
         this.view = new ForexEntryView();
 
-        view.getSubmitButton().setOnAction(e -> handleSubmit());
-        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo, marketService)));
+        view.getSubmitButton().setOnAction(_ -> handleSubmit());
+        view.getBackButton().setOnAction(_ -> Nav.go(new HomeController(repo, marketService)));
 
     }
 
@@ -32,7 +32,14 @@ public class ForexEntryController implements HasView {
         try {
             var tradeDate = view.getTradeDatePicker().getValue();
             var counterparty = view.getCounterpartyField().getText();
-            var productType = view.getProductTypeField().getText();
+            var productType = switch (view.getProductTypeField().getText()) {
+                case "Spot" -> FxProductType.SPOT;
+                case "Forward" -> FxProductType.FORWARD;
+                case "Swap" -> FxProductType.SWAP;
+                default ->
+                    throw new IllegalArgumentException("Invalid product type: " + view.getProductTypeField().getText());
+            };
+
             var buyCurrency = view.getBuyCurrency().getText();
             var sellCurrency = view.getSellCurrency().getText();
             var buyAmount = new BigDecimal(view.getBuyAmount().getText());

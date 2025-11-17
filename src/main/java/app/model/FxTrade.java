@@ -4,6 +4,8 @@ import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 
+import app.service.MarketService;
+
 public class FxTrade extends Trade implements SettlementApplicable {
 
     private String buyCurrency;
@@ -12,12 +14,12 @@ public class FxTrade extends Trade implements SettlementApplicable {
     private BigDecimal sellAmount;
     private BigDecimal rate;
     private LocalDate valueDate;
-    private String productType;
+    private FxProductType productType;
 
     public FxTrade(long id,
             LocalDate tradeDate,
             String counterparty,
-            String productType,
+            FxProductType productType,
             String buyCurrency,
             String sellCurrency,
             BigDecimal buyAmount,
@@ -37,6 +39,11 @@ public class FxTrade extends Trade implements SettlementApplicable {
     }
 
     // --- Abstract overrides ---
+    @Override
+    public String getDescription() {
+        return "Buy " + buyAmount + " " + buyCurrency + " for " + sellAmount + " " + sellCurrency;
+    }
+
     @Override
     public String getProductType() {
         return "FX-" + productType;
@@ -59,7 +66,7 @@ public class FxTrade extends Trade implements SettlementApplicable {
     // --- Settlement logic ---
     @Override
     public LocalDate calculateSettlementDate() {
-        if (productType == "SPOT") {
+        if (productType == FxProductType.SPOT) {
             LocalDate sd = tradeDate.plusDays(2);
             if (sd.getDayOfWeek() == DayOfWeek.SATURDAY)
                 sd = sd.plusDays(2);
@@ -73,7 +80,8 @@ public class FxTrade extends Trade implements SettlementApplicable {
 
     // --- MTM calculation ---
     @Override
-    public double calculateMTM(double marketRate) {
+    public double calculateMTM(MarketService marketService) {
+        double marketRate = marketService.getFxRate(buyCurrency, sellCurrency);
         double currentSellAmount = buyAmount.doubleValue() * marketRate;
         return currentSellAmount - sellAmount.doubleValue();
     }

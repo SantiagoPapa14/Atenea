@@ -4,14 +4,10 @@ import java.util.Properties;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import org.json.JSONObject;
 
-public class MarketService {
-    private String apiKey = "FINNHUB_API_KEY";
+public abstract class MarketService {
+    protected String apiKey = "API_KEY";
 
     public MarketService() {
         Properties props = new Properties();
@@ -25,55 +21,11 @@ public class MarketService {
         }
     }
 
-    private JSONObject makeApiCall(String url) {
-        try {
-            HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-            con.setRequestMethod("GET");
+    protected abstract JSONObject makeApiCall(String url);
 
-            int status = con.getResponseCode();
-            JSONObject obj = null;
+    public abstract String getCompanyByTicker(String ticker);
 
-            if (status == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-                String inputLine;
-                StringBuilder content = new StringBuilder();
-                while ((inputLine = in.readLine()) != null) {
-                    content.append(inputLine);
-                }
-                in.close();
-                obj = new JSONObject(content.toString());
-            } else {
-                System.err.println("Error: " + status);
-            }
-            con.disconnect();
-            return obj;
-        } catch (IOException e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
+    public abstract Double getStockPrice(String ticker);
 
-    public String getCompanyByTicker(String ticker) {
-        String url = "https://finnhub.io/api/v1/search?q=" + ticker
-                + "&exchange=US&token=" + apiKey;
-
-        JSONObject obj = makeApiCall(url);
-        return obj.getJSONArray("result").getJSONObject(0).getString("description");
-    }
-
-    public Double getStockPrice(String ticker) {
-        String url = "https://finnhub.io/api/v1/quote?symbol=" + ticker + "&token=" + apiKey;
-        JSONObject obj = makeApiCall(url);
-
-        if (obj == null) {
-            System.err.println("Failed to get price for " + ticker);
-            return null;
-        }
-
-        if (obj.has("c")) {
-            return obj.getDouble("c");
-        }
-
-        return null;
-    }
+    public abstract Double getFxRate(String fromCurrency, String toCurrency);
 }

@@ -1,5 +1,7 @@
 package app.model;
 
+import app.service.MarketService;
+
 public interface Priceable {
-    double calculateMTM(double marketRate);
+    double calculateMTM(MarketService marketService);
 }

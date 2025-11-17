@@ -2,6 +2,8 @@ package app.model;
 
 import java.time.LocalDate;
 
+import app.service.MarketService;
+
 public abstract class Trade implements Priceable {
 
     protected long id;
@@ -44,8 +46,10 @@ public abstract class Trade implements Priceable {
 
     public abstract double calculateValue();
 
+    public abstract String getDescription();
+
     @Override
-    public abstract double calculateMTM(double marketPrice);
+    public abstract double calculateMTM(MarketService marketService);
 
     @Override
     public String toString() {

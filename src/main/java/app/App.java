@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 import app.model.MemoryTradeRepository;
 import app.model.TradeRepository;
 import app.service.MarketService;
+import app.service.FinnanceService;
 
 import ui.Nav;
 import ui.home.HomeController;
@@ -17,7 +18,7 @@ public class App extends Application {
         Nav.setStage(stage);
 
         TradeRepository repo = new MemoryTradeRepository();
-        MarketService marketService = new MarketService();
+        MarketService marketService = new FinnanceService();
         var home = new HomeController(repo, marketService);
 
         Nav.go(home);

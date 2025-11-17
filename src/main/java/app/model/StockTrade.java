@@ -1,6 +1,7 @@
 package app.model;
 
 import java.time.LocalDate;
+import app.service.MarketService;
 
 public class StockTrade extends Trade {
 
@@ -32,6 +33,11 @@ public class StockTrade extends Trade {
     }
 
     @Override
+    public String getDescription() {
+        return "Buy " + quantity + " shares of " + ticker;
+    }
+
+    @Override
     public String getProductType() {
         return "STOCK";
     }
@@ -50,7 +56,8 @@ public class StockTrade extends Trade {
     }
 
     @Override
-    public double calculateMTM(double marketPrice) {
+    public double calculateMTM(MarketService marketService) {
+        double marketPrice = marketService.getStockPrice(ticker);
         return (marketPrice - price) * quantity;
     }
 }

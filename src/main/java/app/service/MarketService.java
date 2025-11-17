@@ -1,6 +1,5 @@
 package app.service;
 
-import java.util.List;
 import java.util.Properties;
 
 import java.io.FileInputStream;
@@ -20,7 +19,7 @@ public class MarketService {
             FileInputStream fis = new FileInputStream("config.properties");
             props.load(fis);
             this.apiKey = props.getProperty("API_KEY");
-            System.out.println(apiKey);
+            System.out.println("API KEY: " + apiKey);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -62,10 +61,19 @@ public class MarketService {
         return obj.getJSONArray("result").getJSONObject(0).getString("description");
     }
 
-    public double getStockPrice(String ticker) {
+    public Double getStockPrice(String ticker) {
         String url = "https://finnhub.io/api/v1/quote?symbol=" + ticker + "&token=" + apiKey;
-
         JSONObject obj = makeApiCall(url);
-        return obj.getDouble("c");
+
+        if (obj == null) {
+            System.err.println("Failed to get price for " + ticker);
+            return null;
+        }
+
+        if (obj.has("c")) {
+            return obj.getDouble("c");
+        }
+
+        return null;
     }
 }

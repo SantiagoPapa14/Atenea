@@ -13,11 +13,12 @@ public class TradeListView implements HasView {
     private VBox root = new VBox(15);
     private TableView<Trade> table = new TableView<>();
     private Button backBtn = new Button("Back");
+    private Button refreshBtn = new Button("Refresh Prices");
     private View view;
 
     public TradeListView() {
         root.setPadding(new Insets(20));
-        root.getChildren().addAll(table, backBtn);
+        root.getChildren().addAll(table, backBtn, refreshBtn);
         view = new View(root);
     }
 
@@ -32,5 +33,9 @@ public class TradeListView implements HasView {
 
     public Button getBackButton() {
         return backBtn;
+    }
+
+    public Button refreshPricesButton() {
+        return refreshBtn;
     }
 }

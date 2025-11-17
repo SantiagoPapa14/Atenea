@@ -27,6 +27,10 @@ public class StockTrade extends Trade {
         this.currency = currency;
     }
 
+    public String getTicker() {
+        return ticker;
+    }
+
     @Override
     public String getProductType() {
         return "STOCK";

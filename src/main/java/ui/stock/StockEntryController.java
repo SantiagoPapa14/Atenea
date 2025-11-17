@@ -2,6 +2,7 @@ package ui.stock;
 
 import app.model.StockTrade;
 import app.model.TradeRepository;
+import app.service.MarketService;
 
 import ui.Nav;
 import ui.HasView;
@@ -12,13 +13,15 @@ public class StockEntryController implements HasView {
 
     private StockEntryView view;
     private TradeRepository repo;
+    private MarketService marketService;
 
-    public StockEntryController(TradeRepository repo) {
+    public StockEntryController(TradeRepository repo, MarketService marketService) {
         this.repo = repo;
+        this.marketService = marketService;
         this.view = new StockEntryView();
 
         view.getSubmitButton().setOnAction(e -> handleSubmit());
-        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo)));
+        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo, marketService)));
 
     }
 

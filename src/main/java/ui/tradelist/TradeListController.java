@@ -2,6 +2,7 @@ package ui.tradelist;
 
 import app.model.TradeRepository;
 import app.model.Trade;
+import app.service.MarketService;
 import ui.Nav;
 import ui.HasView;
 import ui.View;
@@ -14,14 +15,16 @@ public class TradeListController implements HasView {
 
     private final TradeListView view;
     private final TradeRepository repo;
+    private final MarketService marketService;
 
-    public TradeListController(TradeRepository repo) {
+    public TradeListController(TradeRepository repo, MarketService marketService) {
         this.repo = repo;
+        this.marketService = marketService;
         this.view = new TradeListView();
 
         setupTable();
 
-        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo)));
+        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo, marketService)));
     }
 
     private void setupTable() {

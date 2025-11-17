@@ -2,8 +2,11 @@ package app;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+
 import app.model.MemoryTradeRepository;
 import app.model.TradeRepository;
+import app.service.MarketService;
+
 import ui.Nav;
 import ui.home.HomeController;
 
@@ -14,7 +17,8 @@ public class App extends Application {
         Nav.setStage(stage);
 
         TradeRepository repo = new MemoryTradeRepository();
-        var home = new HomeController(repo);
+        MarketService marketService = new MarketService();
+        var home = new HomeController(repo, marketService);
 
         Nav.go(home);
     }

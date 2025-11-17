@@ -3,6 +3,7 @@ package ui.forex;
 import app.model.Trade;
 import app.model.FxTrade;
 import app.model.TradeRepository;
+import app.service.MarketService;
 
 import ui.Nav;
 import ui.HasView;
@@ -15,13 +16,15 @@ public class ForexEntryController implements HasView {
 
     private ForexEntryView view;
     private TradeRepository repo;
+    private MarketService marketService;
 
-    public ForexEntryController(TradeRepository repo) {
+    public ForexEntryController(TradeRepository repo, MarketService marketService) {
         this.repo = repo;
+        this.marketService = marketService;
         this.view = new ForexEntryView();
 
         view.getSubmitButton().setOnAction(e -> handleSubmit());
-        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo)));
+        view.getBackButton().setOnAction(e -> Nav.go(new HomeController(repo, marketService)));
 
     }
 

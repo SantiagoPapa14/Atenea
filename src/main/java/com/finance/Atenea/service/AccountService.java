@@ -54,6 +54,11 @@ public class AccountService {
         return account.get();
     }
 
+    public void deleteAccount(Client client, Long id) {
+        Account account = this.getAccount(client, id);
+        accountRepository.delete(account);
+    }
+
     public Iterable<Transaction> getAccountTransactions(Client client, Long id) {
         Account account = getAccount(client, id);
         if (!(account instanceof SavingsAccount)) {

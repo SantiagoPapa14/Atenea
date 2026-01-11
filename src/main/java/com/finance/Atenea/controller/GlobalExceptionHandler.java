@@ -9,6 +9,8 @@ import com.finance.Atenea.model.exceptions.AccountTypeMismatchException;
 import com.finance.Atenea.model.exceptions.DifferentCurrencyException;
 import com.finance.Atenea.model.exceptions.OwnershipException;
 
+import io.jsonwebtoken.ExpiredJwtException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
@@ -50,6 +52,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UsernameNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public Map<String, String> handleUsernameNotFoundException(UsernameNotFoundException ex) {
+        return Map.of("error", ex.getMessage());
+    }
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public Map<String, String> handleExpiredJwtException(ExpiredJwtException ex) {
         return Map.of("error", ex.getMessage());
     }
 

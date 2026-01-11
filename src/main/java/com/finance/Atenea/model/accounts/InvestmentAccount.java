@@ -2,6 +2,7 @@ package com.finance.Atenea.model.accounts;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.finance.Atenea.model.Currency;
 import com.finance.Atenea.model.MarketService;
 import com.finance.Atenea.model.assets.Asset;
@@ -14,10 +15,15 @@ import jakarta.persistence.OneToMany;
 public class InvestmentAccount extends Account {
 
     @OneToMany(mappedBy = "account")
+    @JsonIgnore
     private List<Asset> assets = new java.util.ArrayList<>();
 
     public InvestmentAccount(Client client, String name) {
         super(client, name);
+    }
+
+    public InvestmentAccount() {
+        super();
     }
 
     @Override
@@ -25,5 +31,13 @@ public class InvestmentAccount extends Account {
         return assets.stream()
                 .map(a -> a.getWorth(marketData))
                 .reduce(Money.zero(Currency.USD), Money::add);
+    }
+
+    public List<Asset> getAssets() {
+        return assets;
+    }
+
+    public void setAssets(List<Asset> assets) {
+        this.assets = assets;
     }
 }

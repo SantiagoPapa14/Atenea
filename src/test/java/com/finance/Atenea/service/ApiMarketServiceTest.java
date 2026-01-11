@@ -36,7 +36,6 @@ class ApiMarketServiceTest {
 
     @Test
     void fxRateReturnsTargetCurrency() throws InterruptedException {
-        Thread.sleep(1100);
         Money rate = service.fxRate(Currency.EUR, Currency.USD);
 
         assertEquals(Currency.USD, rate.getCurrency());

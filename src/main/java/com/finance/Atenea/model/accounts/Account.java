@@ -32,9 +32,32 @@ public abstract class Account {
         this.name = name;
     }
 
+    public abstract Money getNetWorth(MarketService marketData);
+
+    public Account() {
+    }
+
     public Long getId() {
         return id;
     }
 
-    public abstract Money getNetWorth(MarketService marketData);
+    public Client getClient() {
+        return client;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 }

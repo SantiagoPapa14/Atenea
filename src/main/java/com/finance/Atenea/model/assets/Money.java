@@ -59,6 +59,10 @@ public class Money {
         return new Money(this.amount.multiply(new BigDecimal(factor)), this.currency);
     }
 
+    public void invert() {
+        this.amount = this.amount.negate();
+    }
+
     public BigDecimal getAmount() {
         return amount;
     }

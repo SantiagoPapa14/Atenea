@@ -1,8 +1,5 @@
 package com.finance.Atenea.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -22,7 +19,9 @@ public class ApiMarketService implements MarketService {
 
     private final RestTemplate restTemplate;
     private final String apiKey;
-    private static final Logger log = LoggerFactory.getLogger(ApiMarketService.class);
+
+    private long lastRequestTime = 0;
+    private static final long MIN_REQUEST_INTERVAL_MS = 1100;
 
     public ApiMarketService(
             RestTemplate restTemplate,
@@ -32,21 +31,36 @@ public class ApiMarketService implements MarketService {
         this.apiKey = apiKey;
     }
 
+    private synchronized void throttle() {
+        long now = System.currentTimeMillis();
+        long elapsed = now - lastRequestTime;
+
+        if (elapsed < MIN_REQUEST_INTERVAL_MS) {
+            long sleepTime = MIN_REQUEST_INTERVAL_MS - elapsed;
+            try {
+                Thread.sleep(sleepTime);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                throw new RuntimeException("Thread interrupted while throttling", e);
+            }
+        }
+
+        lastRequestTime = System.currentTimeMillis();
+    }
+
     @Override
     public Money stockPrice(String ticker) {
+        throttle();
         String url = new AlphaVantageUrlBuilder().function(AlphaVantageApiFunction.GLOBAL_QUOTE).symbol(ticker)
                 .apiKey(apiKey)
                 .build();
 
         AlphaVantageGlobalQuoteResponse response = restTemplate.getForObject(url,
                 AlphaVantageGlobalQuoteResponse.class);
-        log.info("AlphaVantage GLOBAL_QUOTE raw response: {}", response);
 
         AlphaVantageGlobalQuoteDTO quoteData = response.quote();
-        log.info("AlphaVantage GLOBAL_QUOTE data: {}", quoteData);
 
         if (quoteData == null || quoteData.price() == null) {
-            log.error("Invalid GLOBAL_QUOTE response for {}: {}", ticker, quoteData);
             throw new IllegalStateException("Invalid response from AlphaVantage for symbol " + ticker);
         }
 
@@ -55,17 +69,14 @@ public class ApiMarketService implements MarketService {
 
     @Override
     public Money fxRate(Currency from, Currency to) {
+        throttle();
         String url = new AlphaVantageUrlBuilder().function(AlphaVantageApiFunction.CURRENCY_EXCHANGE_RATE).from(from)
                 .to(to)
                 .apiKey(apiKey)
                 .build();
 
-        System.out.println("\n" + url);
-
         AlphaVantageExchangeRateResponse response = restTemplate.getForObject(url,
                 AlphaVantageExchangeRateResponse.class);
-
-        log.info("AlphaVantage FX_RATE raw response: {}", response);
 
         if (response == null || response.exchangeRateData() == null) {
             throw new IllegalStateException(
@@ -73,7 +84,6 @@ public class ApiMarketService implements MarketService {
         }
 
         AlphaVantageExchangeRateDTO exchangeRateData = response.exchangeRateData();
-        log.info("AlphaVantage FX_RATE data: {}", exchangeRateData);
 
         return Money.of(to, exchangeRateData.exchangeRate());
 

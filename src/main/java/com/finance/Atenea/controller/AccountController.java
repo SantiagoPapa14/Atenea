@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.finance.Atenea.model.dto.CreateAccountRequest;
 import com.finance.Atenea.model.dto.TransactionDTO;
+import com.finance.Atenea.model.exceptions.AccountTypeMismatchException;
+import com.finance.Atenea.model.exceptions.DifferentCurrencyException;
 import com.finance.Atenea.service.AccountService;
 import com.finance.Atenea.service.ClientService;
 import com.finance.Atenea.model.Transaction;
@@ -44,7 +46,7 @@ public class AccountController {
         } else if ("SAVINGS".equalsIgnoreCase(accountType)) {
             accountService.createSavingsAccount(client, req.name(), req.currency());
         } else {
-            throw new IllegalArgumentException("Invalid account type: " + accountType);
+            throw new AccountTypeMismatchException("Invalid account type");
         }
     }
 

@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 
 import com.finance.Atenea.model.Currency;
 import com.finance.Atenea.model.MarketService;
+import com.finance.Atenea.model.exceptions.DifferentCurrencyException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
@@ -50,7 +51,7 @@ public class Money {
 
     public Money add(Money money) {
         if (this.currency != money.currency) {
-            throw new IllegalArgumentException("Cannot add different currencies");
+            throw new DifferentCurrencyException("Currency mismatch");
         }
         return new Money(this.amount.add(money.getAmount()), this.currency);
     }

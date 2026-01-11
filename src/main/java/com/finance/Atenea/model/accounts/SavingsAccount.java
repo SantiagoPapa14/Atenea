@@ -7,6 +7,7 @@ import com.finance.Atenea.model.Currency;
 import com.finance.Atenea.model.MarketService;
 import com.finance.Atenea.model.Transaction;
 import com.finance.Atenea.model.assets.Money;
+import com.finance.Atenea.model.exceptions.DifferentCurrencyException;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Embedded;
@@ -33,7 +34,7 @@ public class SavingsAccount extends Account {
 
     public Transaction process(Transaction transaction) {
         if (transaction.getAmount().getCurrency() != balance.getCurrency()) {
-            throw new IllegalArgumentException("Currency mismatch");
+            throw new DifferentCurrencyException("Currency mismatch");
         }
         balance = balance.add(transaction.getAmount());
         transactions.add(transaction);

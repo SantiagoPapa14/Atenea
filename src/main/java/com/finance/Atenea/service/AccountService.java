@@ -7,6 +7,10 @@ import org.springframework.stereotype.Service;
 import com.finance.Atenea.model.Currency;
 import com.finance.Atenea.model.Transaction;
 import com.finance.Atenea.model.accounts.SavingsAccount;
+import com.finance.Atenea.model.exceptions.AccountNotFoundException;
+import com.finance.Atenea.model.exceptions.AccountTypeMismatchException;
+import com.finance.Atenea.model.exceptions.DifferentCurrencyException;
+import com.finance.Atenea.model.exceptions.OwnershipException;
 import com.finance.Atenea.model.accounts.Account;
 import com.finance.Atenea.model.accounts.Client;
 import com.finance.Atenea.model.accounts.InvestmentAccount;
@@ -42,10 +46,10 @@ public class AccountService {
     public Account getAccount(Client client, Long id) {
         Optional<Account> account = accountRepository.findById(id);
         if (account.isEmpty()) {
-            throw new IllegalArgumentException("Account not found");
+            throw new AccountNotFoundException();
         }
         if (account.get().getClient() != client) {
-            throw new IllegalArgumentException("Client does not own account");
+            throw new OwnershipException("Account does not belong to client");
         }
         return account.get();
     }
@@ -53,7 +57,7 @@ public class AccountService {
     public Iterable<Transaction> getAccountTransactions(Client client, Long id) {
         Account account = getAccount(client, id);
         if (!(account instanceof SavingsAccount)) {
-            throw new IllegalArgumentException("Account is not a savings account");
+            throw new AccountTypeMismatchException("Only savings accounts can have transactions");
         }
         return transactionRepository.findByAccount((SavingsAccount) account);
     }
